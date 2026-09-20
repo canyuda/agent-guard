@@ -47,7 +47,7 @@ key 只进入请求头,不会出现在日志、审计或异常消息中。
 ## 安装与一键配置(推荐)
 
 ```bash
-npm install -g agent-guard-cli@0.1.0
+npm install -g @canyuda/agent-guard
 agent-guard setup        # 四步向导:key → 选工具(多选) → 作用域(用户级/项目级) → 确认写入
 ```
 
