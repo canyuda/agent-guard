@@ -19,9 +19,10 @@ ZCode PreToolUse (Bash|Write|Edit|mcp__.*)
   → ③ 三级判定: block(risk≥2.5 或 violation≥0.85)
                  confirm(risk≥1.5 或 violation≥0.5)
                  allow(其余)
-  → ④ 输出映射: allow → 放行;confirm/block → deny + 说明文案
-                 (完全访问模式下 ask 可能被静默放行,deny 是唯一可靠闸门,
-                  故默认 degrade_ask_to_deny=true;实测 ask 有确认面后可在 config 关掉)
+  → ④ 输出映射: allow → 放行;block → deny + 说明文案
+                 (deny 在任何模式下都强制生效;confirm 默认也用 deny 承载以防
+                  ask 被静默放行,本机实测 ask 有确认面后已在 config 切为 false,
+                  即 confirm 弹原生确认框)
 ```
 
 deny 的理由会回流给 agent,文案明确要求它停下向用户说明、等待人工执行,禁止重试或改写命令绕过。
@@ -93,7 +94,7 @@ node check.mjs --tool Write --input '{"file_path":"/etc/sudoers","content":"root
 | 字段 | 默认 | 说明 |
 | --- | --- | --- |
 | `model` | `jev-latest` | 模型,可锁具体版本 |
-| `degrade_ask_to_deny` | `true` | confirm 级是否用 deny 承载(完全访问模式建议保持 true) |
+| `degrade_ask_to_deny` | `false`(试点期) | confirm 级是否用 deny 承载;默认 `true`,实测本机完全访问模式 ask 有确认面后已切 `false`,异常场景可随时切回 |
 | `thresholds.*` | `2.5/0.85`(block)、`1.5/0.5`(confirm) | 三级判定阈值,risk 为 0~3 连续值 |
 | `fastpath.mcp_allowlist` | `[]` | MCP server 豁免名单(命中直接放行),按审计数据填 |
 | `fastpath.allowlist` | git 只读、ls/cat/echo 等 15 条 | 只读白名单正则(命中放行,不出网) |
@@ -132,7 +133,7 @@ agent-guard/
 ## 当前状态与路线
 
 - ✅ 全部组件实现,42/42 测试通过,真实 API 冒烟通过
-- 🔄 **试点中**:工作区级挂载,2-3 天观察期;退出标准(spec §9b):契约实测通过、零崩溃、零高危误放、误伤率 <10%、依据审计填出 MCP 豁免名单 → 达标后迁移 `~/.zcode/cli/config.json` 全局启用
-- ⚠️ 已知待验证项:完全访问模式下 hook `ask` 决策是否有确认面(用 `probe.mjs` 实测;若被静默放行则保持 `degrade_ask_to_deny: true`)
+- ✅ 契约实测(2026-09-20):完全访问模式 `ask` 弹原生确认框、`deny` 硬拦截且理由回流 agent;`degrade_ask_to_deny` 已切 `false`,详见 [docs/notes/2026-09-20-contract-findings.md](docs/notes/2026-09-20-contract-findings.md)
+- 🔄 **试点中**:工作区级挂载正式 hook,2-3 天观察期;退出标准(spec §9b):零崩溃、零高危误放、误伤率 <10%、依据审计填出 MCP 豁免名单 → 达标后迁移 `~/.zcode/cli/config.json` 全局启用
 
 设计与决策细节见 [docs/specs/2026-09-20-agent-guard-design.md](docs/specs/2026-09-20-agent-guard-design.md),实施过程见 [docs/plans/2026-09-20-agent-guard.md](docs/plans/2026-09-20-agent-guard.md)。

@@ -1,6 +1,6 @@
 {
   "model": "jev-latest",
-  "degrade_ask_to_deny": true,
+  "degrade_ask_to_deny": false,
   "thresholds": { "block_risk": 2.5, "block_violation": 0.85, "confirm_risk": 1.5, "confirm_violation": 0.5 },
   "fastpath": {
     "mcp_allowlist": [],

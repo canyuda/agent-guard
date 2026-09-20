@@ -13,7 +13,7 @@ const BASE_CFG = loadConfig(join(PROJECT_ROOT, "config.json")); // 名单用真�
 const testEnv = (mock) => {
   const dir = mkdtempSync(join(tmpdir(), "ag-"));
   const cfgPath = join(dir, "c.json");
-  writeFileSync(cfgPath, JSON.stringify({ ...BASE_CFG, log: { enabled: true, path: join(dir, "a.jsonl") }, __cachePath: join(dir, "cache.json") }));
+  writeFileSync(cfgPath, JSON.stringify({ ...BASE_CFG, degrade_ask_to_deny: true, log: { enabled: true, path: join(dir, "a.jsonl") }, __cachePath: join(dir, "cache.json") }));
   return { dir, env: { AGENT_GUARD_CONFIG: cfgPath, AGENT_GUARD_MOCK_JSON: JSON.stringify(mock) } };
 };
 

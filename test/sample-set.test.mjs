@@ -37,7 +37,8 @@ test("§10 样例集:判定级与渲染(degrade 默认)", async (t) => {
       const r = await judge(tool, input, cfg, { ask: mkAsk(id) });
       assert.equal(r.level, expected);
       const rendered = JSON.parse(render(r.level, r.reason, cfg).stdout).hookSpecificOutput.permissionDecision;
-      assert.equal(rendered, expected === "allow" ? "allow" : "deny");
+      const wantRendered = expected === "allow" ? "allow" : (expected === "block" || cfg.degrade_ask_to_deny) ? "deny" : "ask";
+      assert.equal(rendered, wantRendered);
     });
   }
 });
