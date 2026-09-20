@@ -1,8 +1,13 @@
 {
-  "name": "agent-guard",
+  "name": "agent-guard-cli",
   "version": "0.1.0",
-  "private": true,
+  "description": "TypeSafe (Jev) 驱动的 AI 编程工具安全守卫:PreToolUse 拦截 Bash/Write/Edit/MCP,三级风险判定,完全访问模式下强制人工确认",
+  "license": "MIT",
   "type": "module",
+  "bin": { "agent-guard": "./bin/agent-guard.mjs" },
+  "engines": { "node": ">=20" },
+  "files": ["bin", "lib", "hook.mjs", "check.mjs", "config.json", "README.md", "LICENSE"],
+  "keywords": ["agent", "hook", "guard", "security", "pretooluse", "typesafe", "jev", "claude-code", "zcode", "cursor"],
   "scripts": {
     "test": "node --test \"test/*.test.mjs\""
   }

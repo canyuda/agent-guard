@@ -44,9 +44,20 @@ echo 'TYPESAFE_API_KEY="your_api_key"' > ~/.agentguardrc
 
 key 只进入请求头,不会出现在日志、审计或异常消息中。
 
-## 启用 hook
+## 安装与一键配置(推荐)
 
-在工作区配置 `<workspace>/.zcode/config.json`(或用户级 `~/.zcode/cli/config.json`,对所有项目生效)添加:
+```bash
+npm install -g agent-guard-cli@0.1.0
+agent-guard setup        # 四步向导:key → 选工具(多选) → 作用域(用户级/项目级) → 确认写入
+```
+
+setup 会自动探测 key(env/Windows 注册表/已有 rc 文件)、检测已安装的 ZCode / Claude Code / Cursor,确认后写入对应工具的 PreToolUse hook 配置(自动备份 `.bak`、只增改本项目条目、其余配置原样保留、重复执行幂等)。非交互模式:`agent-guard setup --key <k> --agents zcode,claude --scope user --yes`(支持 `--dry-run` 只看计划)。
+
+> 数据目录:`~/.agent-guard/`(config / 判定缓存 / 审计日志);key 存 `~/.agentguardrc`。
+
+## 本地开发:手动启用 hook(不装全局包)
+
+在工作区配置 `<workspace>/.zcode/config.json`(或用户级 `~/.zcode/cli/config.json`,对所有项目生效)添加(hook 路径填本仓库的 hook.mjs 绝对路径,正斜杠):
 
 ```json
 {
@@ -60,7 +71,7 @@ key 只进入请求头,不会出现在日志、审计或异常消息中。
             {
               "type": "process",
               "command": "node",
-              "args": ["C:/Users/epsoft-bc/.zcode/workspace/default/agent-guard/hook.mjs"],
+              "args": ["<本仓库绝对路径>/hook.mjs"],
               "timeoutMs": 15000
             }
           ]
