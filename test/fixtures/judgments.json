@@ -1,0 +1,8 @@
+{
+  "npm install lodash": { "risk": 1.0, "violation": 0.02 },
+  "src/Main.java": { "risk": 1.1, "violation": 0.01 },
+  "git reset --hard HEAD~1": { "risk": 2.3, "violation": 0.4 },
+  "docker compose down": { "risk": 2.0, "violation": 0.1 },
+  "taskkill /F /IM java.exe": { "risk": 2.1, "violation": 0.05 },
+  "/etc/sudoers": { "risk": 2.8, "violation": 0.93 }
+}
