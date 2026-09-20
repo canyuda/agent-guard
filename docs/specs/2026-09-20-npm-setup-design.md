@@ -97,6 +97,7 @@ setup 确认后自动修改所选 AI 编程工具的 hook 配置,实现 cmd-guar
 - JSON 读→改→写(2 空格缩进,保留其余全部键)
 - **只对 `PreToolUse` 数组做 upsert**:存在"本项目条目"(按 hook 命令指向本包路径识别)则替换,否则追加;matcher 统一 `Bash|Write|Edit|mcp__.*`
 - 损坏 JSON(解析失败):不写,报告并建议手动处理,备份仍保留
+- **作用域防撞**:project 作用域且 `cwd === home` 时拒绝执行并提示(项目级路径会与用户级路径重叠)
 - 幂等:重复 setup 不产生重复条目
 - 结束摘要:每工具一行(已写入 / 已存在更新 / 跳过原因)+「重启对应工具生效」
 
@@ -115,7 +116,7 @@ setup 确认后自动修改所选 AI 编程工具的 hook 配置,实现 cmd-guar
 
 ### 7.1 package.json 字段
 
-`name=<pkg名>`(发布前定)、`version=0.1.0`、`description`、`bin={"agent-guard":"./bin/agent-guard.mjs"}`、`files=["bin","lib","hook.mjs","check.mjs","config.json","README.md","LICENSE"]`(**排除 test/docs/probe/.cache/logs**)、`engines={"node":">=20"}`、`license=MIT`、`keywords=[agent,hook,guard,typesafe,claude-code,zcode,cursor]`
+`name=<pkg名>`(发布前定)、`version=0.1.0`、`description`、`bin={"agent-guard":"./bin/agent-guard.mjs"}`、`files=["bin","lib","hook.mjs","check.mjs","config.json","README.md","LICENSE"]`(**排除 test/docs/probe/.cache/logs**)、`engines={"node":">=20"}`、`license=MIT`、`repository`(GitHub)、`keywords=[agent,hook,guard,typesafe,claude-code,zcode,cursor]`
 
 ### 7.2 发布前验证(只读,工程师执行)
 
@@ -124,6 +125,8 @@ setup 确认后自动修改所选 AI 编程工具的 hook 配置,实现 cmd-guar
 ### 7.3 发布与安装(用户执行,官方源+代理)
 
 ```bash
+# 0. 先推 GitHub(开源仓库,npm repository 链接;gh 可用或网页建仓,走代理)
+#    gh repo create <user>/agent-guard --public ; git remote add origin … ; git push -u origin master
 npm login --registry https://registry.npmjs.org
 HTTPS_PROXY=http://127.0.0.1:7890 npm publish --registry https://registry.npmjs.org
 HTTPS_PROXY=http://127.0.0.1:7890 npm install -g <pkg名>@0.1.0 --registry https://registry.npmjs.org
@@ -153,6 +156,13 @@ HTTPS_PROXY=http://127.0.0.1:7890 npm install -g <pkg名>@0.1.0 --registry https
 5. `--remove` 二批;Cursor 首批做,schema 核实不了则降级提示不硬编
 6. 发布/安装/登录命令由用户执行(官方源+代理)
 7. 判定语义零变更,只动发布工程与接入方式
+
+**grilling 补充(2026-09-20 第二轮)**:
+8. license MIT、首发 0.1.0、发布前先推 GitHub(repository 链接 + 开源)
+9. `--remove` 二批、Cursor 首批带降级 —— 正式确认
+10. 数据目录 `~/.agent-guard/` 确认;试点审计位置将随之迁移(见 pilot 文档)
+11. project 作用域 `cwd === home` 拒绝执行(防撞用户级路径)
+12. 实施沿用 master 分支(与一阶段一致,用户知情)
 
 ## 11. 风险与验证项
 

@@ -30,7 +30,7 @@
 ## 日常工具
 
 ```bash
-tail -5 logs/audit.jsonl                 # 看最近判定
+tail -5 logs/audit.jsonl                 # 看最近判定(⚠️ 第二阶段 T2 合入后迁至 ~/.agent-guard/logs/audit.jsonl)
 node check.mjs --cmd "<任意命令>"          # 手动评估(真实 API)
 node check.mjs --mock --cmd "git reset --hard HEAD~1"   # 离线看三级判定
 ```
