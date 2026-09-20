@@ -45,7 +45,8 @@ ZCode PreToolUse (matcher: Bash|Write|Edit|mcp__.*)
 
 | 组件 | 职责 | 依赖 |
 | --- | --- | --- |
-| `hook.mjs` | 入口:读 stdin、编排 1-6、写 stdout/退出码;顶层兜底捕获 | 全部 lib |
+| `hook.mjs` | 入口:读 stdin、编排、写 stdout/退出码;顶层兜底捕获 | lib/judge 等 |
+| `lib/judge.mjs` | 编排:state→快路径→API→判定,产出 {level,reason,source,judgments} | 全部 lib |
 | `check.mjs` | 手动 CLI:`--cmd` / `--tool`+`--input` / `--mock`,不经 hook 管道直接看判定 | state/fastpath/typesafe/decide |
 | `lib/state.mjs` | 从 `tool_name` + `tool_input` 构造 TypeSafe state | 无 |
 | `lib/fastpath.mjs` | 白/黑/MCP 豁免名单匹配;判定缓存读写 | config |
@@ -171,7 +172,7 @@ agent-guard/
 | hook 自身异常 | 顶层兜底捕获并尽力输出 confirm/block 级决策;若进程仍崩溃则以非零退出,ZCode 记为失败——两条路都不放行 |
 | ZCode 侧超时 | hook `timeoutMs: 15000` 整体兜底 |
 
-原则:**fail-closed → confirm**(用户已定),不静默放行。API 单次请求超时 8 秒且 hook 路径不自动重试(SDK 若无法禁用重试则切换零依赖直连,§11);`check.mjs` 手动模式保留 SDK 默认重试便于诊断。
+原则:**fail-closed → confirm**(用户已定),不静默放行。API 单次请求超时 8 秒且 hook 路径不自动重试(零依赖直连,§11)。
 
 ## 9. 审计日志
 
@@ -197,8 +198,8 @@ agent-guard/
 
 ## 11. 依赖与运行时
 
-- Node ≥ 20(SDK 要求;本机 24.19.0 ✓),`@typesafe-ai/sdk`(npm)
-- **备选路径 B(零依赖)**:Node 内置 fetch 直连 `POST https://api.typesafe.ai/v1/systemone`,约 30 行 + 单次重试;SDK 装不上或无法禁用重试/设超时时降级,脚本主体不变
+- Node ≥ 20(本机 24.19.0 ✓),**零运行时依赖:Node 内置 fetch 直连 `POST https://api.typesafe.ai/v1/systemone`**(8 秒超时、零重试,精确满足 hook 需求,免 npm 安装)
+- `@typesafe-ai/sdk` 降级为 `check.mjs` 手动模式的可选升级(手动诊断可容忍 SDK 默认重试)
 - api.typesafe.ai 本机直连可用(不走代理);npm 安装需走本地代理,安装命令由用户亲自执行
 - 成本量级(用户已确认假设):每天 ZCode 内数百次工具调用、灰色地带 <30%、缓存命中后月成本 < $1
 
@@ -227,4 +228,3 @@ agent-guard/
 1. **完全访问模式下 ZCode 对 hook `ask`/`deny` 的实际行为**(day-1 第一件事,决定 `degrade_ask_to_deny` 去留):样例 hook 分别返回 ask/deny,完全访问模式会话触发 Bash,观察是否弹框/拦截,对照 Claude #77212
 2. **ZCode PreToolUse 输出 JSON 的确切 schema**:严格校验下多余 key 即失败;预计同 Claude Code 的 `hookSpecificOutput.permissionDecision` 结构,实测 + 查 ZCode 日志确认。兜底:退出码 0/2 总是可用
 3. **ZCode stdin 输入字段名**:预计同 Claude Code(`hook_event_name`/`tool_name`/`tool_input`),实测确认
-4. **SDK 重试/超时可配置性**:若无法禁用自动重试,启用 §11 备选路径 B

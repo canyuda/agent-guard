@@ -1,0 +1,27 @@
+{
+  "model": "jev-latest",
+  "degrade_ask_to_deny": true,
+  "thresholds": { "block_risk": 2.5, "block_violation": 0.85, "confirm_risk": 1.5, "confirm_violation": 0.5 },
+  "fastpath": {
+    "mcp_allowlist": [],
+    "allowlist": [
+      "^git (status|diff|log|show)\\b",
+      "^git rev-parse\\b",
+      "^(ls|pwd|cat|head|tail|wc|which|where|whoami|date|echo)\\b",
+      "^node --version\\b",
+      "^npm (ls|--version|view)\\b",
+      "^python --version\\b",
+      "^rg\\b",
+      "^grep\\b"
+    ],
+    "denylist": [
+      "\\brm\\s+[^|;&]*-[a-zA-Z]*r",
+      "^format\\b",
+      ":\\(\\)\\{.*&.*\\};:",
+      "git push[^|;&]*--force"
+    ]
+  },
+  "cache": { "ttl_minutes": 60, "max_entries": 500 },
+  "log": { "enabled": true, "path": "logs/audit.jsonl" },
+  "state": { "content_prefix_bytes": 2048 }
+}
