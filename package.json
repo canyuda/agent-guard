@@ -13,6 +13,6 @@
   "files": ["bin", "lib", "hook.mjs", "check.mjs", "config.json", "README.md", "LICENSE"],
   "keywords": ["agent", "hook", "guard", "security", "pretooluse", "typesafe", "jev", "claude-code", "zcode", "cursor"],
   "scripts": {
-    "test": "node --test \"test/*.test.mjs\""
+    "test": "node --test"
   }
 }
