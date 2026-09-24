@@ -160,4 +160,4 @@ agent-guard/
 - ✅ 契约实测(2026-09-20):完全访问模式 `ask` 弹原生确认框、`deny` 硬拦截且理由回流 agent;`degrade_ask_to_deny` 已切 `false`,详见 [docs/notes/2026-09-20-contract-findings.md](docs/notes/2026-09-20-contract-findings.md)
 - 🔄 **试点中**:工作区级挂载正式 hook,2-3 天观察期;退出标准(spec §9b):零崩溃、零高危误放、误伤率 <10%、依据审计填出 MCP 豁免名单 → 达标后迁移 `~/.zcode/cli/config.json` 全局启用
 
-设计与决策细节见 [docs/specs/2026-09-20-agent-guard-design.md](docs/specs/2026-09-20-agent-guard-design.md),实施过程见 [docs/plans/2026-09-20-agent-guard.md](docs/plans/2026-09-20-agent-guard.md)。
+设计与决策细节见 [docs/specs/2026-09-20-agent-guard-design.md](docs/specs/2026-09-20-agent-guard-design.md),实施过程见 [docs/plans/2026-09-20-agent-guard.md](docs/plans/2026-09-20-agent-guard.md),发布与迭代流程见 [docs/release.md](docs/release.md)。
