@@ -105,9 +105,27 @@ npm i -g @canyuda/agent-guard@latest && agent-guard check
 
 ### 触发方式
 
-就是第一章流程的 `npm version …` + `git push --follow-tags origin master`——tag 上远端即自动发布,**之后不要再手动 `npm publish` 同一版本**(会版本冲突)。手动推单个 tag 也可触发:`git push origin v0.2.0`。
+标准触发:第一章流程的 `npm version …` + `git push --follow-tags origin master`(`npm version` 自动打 tag,无需手动)。
 
-首次发布 0.1.0 两条路任选:打 `v0.1.0` tag 推上去走 CI(顺便验证流水线),或首版手动 `npm publish`、之后统一走 CI。
+不经 `npm version` 的场景(首版 0.1.0 补 tag、给历史 commit 补 tag),手动打 tag:
+
+```bash
+# -a 生成 annotated tag(附注标签)——必须带:--follow-tags 随分支推送时只带这种,
+# 且与 npm version 打的 tag 类型保持一致;-m 是 tag 说明
+git tag -a v0.1.0 -m "v0.1.0"
+
+git push origin v0.1.0          # 单推这个 tag(轻量 tag 用这种方式也能触发 CI)
+git push --follow-tags          # 或随分支一起推(只带 annotated tag)
+```
+
+两个易错点:
+
+- **tag 名与 package.json 的 version 必须一致**(`v` + 三段版本号):CI 发的是 commit 里 package.json 的版本,tag 只是触发器和 Release 锚点,对不上会造成"tag 是 v0.1.1、发的却是 0.1.0"的混乱。`npm version` 天然一致,手动打 tag 时自己保证;
+- tag 要打在**已包含版本号变更的 commit 上**(首版是当前 HEAD;若后续手动补 tag,先 `git log` 确认目标 commit 的 package.json 已是目标版本)。
+
+tag 上远端即自动发布,**之后不要再手动 `npm publish` 同一版本**(会版本冲突)。
+
+首次发布 0.1.0 两条路任选:按上面命令打 `v0.1.0` tag 推上去走 CI(顺便验证流水线,无需本地 `npm login`),或首版手动 `npm publish`、之后统一走 CI。
 
 ### 观察与排障
 
