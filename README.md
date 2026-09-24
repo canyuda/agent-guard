@@ -44,6 +44,18 @@ echo 'TYPESAFE_API_KEY="your_api_key"' > ~/.agentguardrc
 
 key 只进入请求头,不会出现在日志、审计或异常消息中。
 
+## 网络代理(可选)
+
+网络受限、直连 TypeSafe API 不通时,在 `~/.agent-guard/config.json` 打开代理(每次判定现读配置,改动对新触发即时生效,hook 无需重启):
+
+```json
+"proxy": { "enabled": true, "host": "127.0.0.1", "port": 7890 }
+```
+
+- `host` 填代理 IP 或域名(本机代理用 `127.0.0.1`),`port` 为整数端口
+- 零依赖实现 HTTP CONNECT 隧道:Node 内置 fetch **不读** `HTTP(S)_PROXY` 环境变量,代理必须在此显式配置
+- fail-closed 语义不变:代理连不上/拒绝隧道/超时一律转人工(error 类型 `network`/`timeout`),开关开了但 host/port 没填对报 `proxy_config`——**不会静默直连绕过代理**
+
 ## 安装与一键配置(推荐)
 
 ```bash
@@ -91,7 +103,7 @@ cd agent-guard
 
 # 离线 mock(用 test/fixtures/judgments.json 的固定判定,无需 key)
 node check.mjs --mock --cmd "git reset --hard HEAD~1"
-# → level=confirm rendered=deny source=api risk=2.3 violation=0.4 (6ms)
+# → level=confirm rendered=deny source=api 破坏性风险=77% 红线违反=40% (6ms)
 
 # 真实评估单条命令
 node check.mjs --cmd "docker compose down"
@@ -112,12 +124,13 @@ node check.mjs --tool Write --input '{"file_path":"/etc/sudoers","content":"root
 | `fastpath.denylist` | `rm -rf`、`format`、fork 炸弹、force push | 破坏黑名单正则(命中直接按 block 处理) |
 | `cache.ttl_minutes` / `max_entries` | `60` / `500` | 判定缓存(同一命令 1 小时内不重跑推理) |
 | `log.enabled` / `path` | `true` / `logs/audit.jsonl` | 审计日志 |
+| `proxy.enabled` / `host` / `port` | `false` / 空 / `0` | TypeSafe API 走 HTTP CONNECT 代理;模板示例 `127.0.0.1:7890`,详见上文"网络代理" |
 
 调阈值不需要动代码或问题文案——缓存存的是原始概率,阈值改动即时生效。
 
 ## 审计日志
 
-`logs/audit.jsonl` 逐行记录每次判定:`ts`、`tool`、命令/路径摘要(≤200 字符)、`source`(fastpath_*/cache/api/error)、`risk` 与概率分布、`violation`、`level`、实际渲染的决策、`reason`、耗时。调阈值、回溯误判、填 MCP 豁免名单都以此为准。
+`logs/audit.jsonl` 逐行记录每次判定:`ts`(本地时间,ISO 带时区偏移)、`tool`、命令/路径摘要(≤200 字符)、`source`(fastpath_*/cache/api/error)、`risk` 与概率分布、`violation`、`level`、实际渲染的决策、`reason`、耗时。调阈值、回溯误判、填 MCP 豁免名单都以此为准。
 
 ```bash
 tail -5 logs/audit.jsonl
@@ -126,7 +139,7 @@ tail -5 logs/audit.jsonl
 ## 测试与项目结构
 
 ```bash
-npm test          # 42 个测试(config/state/fastpath/decide/emit/typesafe/judge/hook 集成/样例集)
+npm test          # 74 个测试(config/state/fastpath/decide/emit/typesafe/judge/hook 集成/样例集/setup/proxy)
 ```
 
 ```

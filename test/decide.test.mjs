@@ -13,5 +13,5 @@ test("阈值边界(默认值)", () => {
 });
 
 test("reason 含两个数值", () => {
-  assert.match(decide({ risk: 2.3, violation: 0.4 }, DEFAULTS).reason, /risk=2\.30 violation=0\.40/);
+  assert.match(decide({ risk: 2.3, violation: 0.4 }, DEFAULTS).reason, /破坏性风险=77% 红线违反=40%/);
 });
