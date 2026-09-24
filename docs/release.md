@@ -46,7 +46,7 @@ npm view @canyuda/agent-guard
 ### 发版前检查清单
 
 - [ ] `npm test` 全绿
-- [ ] `npm pack --dry-run` 过一眼文件清单:只应含 `bin/ lib/ hook.mjs check.mjs config.json README.md LICENSE package.json`(约 21 个文件);**出现 test/、docs/、logs/、*.tgz、probe* 即 files 失效或混入垃圾**
+- [ ] `npm pack --dry-run` 过一眼文件清单:只应含 `bin/ lib/ hook.mjs check.mjs config.json README.md LICENSE package.json`(约 21 个文件);**出现 test/、docs/、logs/、*.tgz 即 files 失效或混入垃圾**
 - [ ] 包内 `config.json` 是仓库模板(proxy.enabled=false、无 key),不是 `~/.agent-guard/config.json`——**key 永远只存 `~/.agentguardrc`,任何路径都不该把它带进包**
 - [ ] README 的安装章节、配置字段表与本次改动一致(上次变更过 `degrade_ask_to_deny` 语义/文案格式时要同步)
 - [ ] `bin` 命令冒烟:`node bin/agent-guard.mjs --help` 能跑

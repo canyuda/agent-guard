@@ -183,7 +183,6 @@ npm test          # 74 个测试(config/state/fastpath/decide/emit/typesafe/judg
 agent-guard/
   hook.mjs        # PreToolUse 入口(stdin→判定→stdout,异常兜底 fail-closed)
   check.mjs       # 手动评估 CLI(--cmd / --tool+--input / --mock)
-  probe.mjs       # hook 契约探针(开发期验证宿主工具行为用)
   lib/            # config / state / fastpath / decide / emit / typesafe / judge / log
   config.json     # 全部策略配置
   test/           # node:test 单测 + 集成测试 + fixtures + §10 十二条样例集
