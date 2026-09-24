@@ -131,4 +131,5 @@ tag 上远端即自动发布,**之后不要再手动 `npm publish` 同一版本*
 
 - 观察:仓库 **Actions** 页的 `release` workflow;publish job 失败最常见原因:NPM_TOKEN 未配置/过期(403)、版本号已存在于 npm(EPUBLISHCONFLICT);
 - CI 故障时的手动补发见第一章末尾的说明;
-- 后续可选优化:接入 npm OIDC trusted publishing(免 token)、PR 上跑测试 matrix 做门禁。
+- 日常 push/PR 由 `ci.yml`(同 matrix:node 20/22)先行验证,兼容性问题在提交时暴露,不用等发版;
+- 后续可选优化:接入 npm OIDC trusted publishing(免 token)。
