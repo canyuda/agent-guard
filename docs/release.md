@@ -16,15 +16,16 @@ npm version patch   # 修 bug、文档调整
 npm version minor   # 新功能、向后兼容(0.x 阶段主要用它)
 npm version major   # 破坏性变更(setup 写入格式、配置 schema、判定语义变化)
 
-# 4. 推送代码与 tag
+# 4. 推送代码与 tag —— tag 上远端即自动触发发布 CI(见"五、自动化发布")
 git push --follow-tags origin master
 
-# 5. 发布(publishConfig.access=public 已配,无需 --access)
-npm publish
+# 5. 等待 CI:仓库 Actions 页确认 release workflow:node 20/22 测试全绿 → publish 完成
 
 # 6. 验证
 npm view @canyuda/agent-guard
 ```
+
+> 手动后备(仅 CI 故障时):本地 `npm publish`(`publishConfig.access=public` 已配,无需 `--access`)。同一版本 CI 已发过会报冲突,先确认 Actions 历史。
 
 ### 版本号怎么选(`npm version patch|minor|major`)
 
@@ -93,8 +94,23 @@ npm i -g @canyuda/agent-guard@latest && agent-guard check
 1. **GitHub Releases**:每次 push tag 后在 GitHub 上建 Release,标题即 `vX.Y.Z`,正文列变更点(tag 已由 `npm version` 创建);
 2. **CHANGELOG.md**(建议下次 minor 时补上):Keep a Changelog 简版,Unreleased 段落随开发滚动维护,发版时改名归档。
 
-## 五、远期:自动化发布(现在不动手)
+## 五、自动化发布(GitHub Actions,已配置)
 
-- **GitHub Actions**:tag push 触发 → matrix(node 20/22)跑 `npm test` → `npm publish`;凭证用 npm 账号生成的 automation token 存 repo secret `NPM_TOKEN`(绕过 2FA 交互),或接入 npm 的 OIDC trusted publishing(免 token)。
-- **CI 门禁**:PR 上只跑测试,publish 仅 tag 触发,避免误发。
-- 在此之前,发布保持手动第五章流程,步骤少且有 pack 清单把关,手动不构成负担。
+流水线文件:`.github/workflows/release.yml`。**任何 `v*` tag 推上远端自动触发**:matrix(node 20/22)跑 `npm test`,全绿后 `npm publish`;tag 名含 `-`(如 `v0.2.0-beta.1`)自动走 `--tag beta`,不污染 latest。PR/普通 push 不触发,只有 tag 会发版。
+
+### 一次性前置(漏了这步 CI 的 publish 必失败)
+
+1. npmjs → 头像 → Access Tokens → Generate New Token,类型选 **Automation**(专供 CI,绕过 2FA 交互),权限覆盖本包读写;
+2. GitHub 仓库 → Settings → Secrets and variables → Actions → New repository secret:名称 **`NPM_TOKEN`**,值为上一步的 token。
+
+### 触发方式
+
+就是第一章流程的 `npm version …` + `git push --follow-tags origin master`——tag 上远端即自动发布,**之后不要再手动 `npm publish` 同一版本**(会版本冲突)。手动推单个 tag 也可触发:`git push origin v0.2.0`。
+
+首次发布 0.1.0 两条路任选:打 `v0.1.0` tag 推上去走 CI(顺便验证流水线),或首版手动 `npm publish`、之后统一走 CI。
+
+### 观察与排障
+
+- 观察:仓库 **Actions** 页的 `release` workflow;publish job 失败最常见原因:NPM_TOKEN 未配置/过期(403)、版本号已存在于 npm(EPUBLISHCONFLICT);
+- CI 故障时的手动补发见第一章末尾的说明;
+- 后续可选优化:接入 npm OIDC trusted publishing(免 token)、PR 上跑测试 matrix 做门禁。

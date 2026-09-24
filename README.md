@@ -67,6 +67,43 @@ setup 会自动探测 key(env/Windows 注册表/已有 rc 文件)、检测已安
 
 > 数据目录:`~/.agent-guard/`(config / 判定缓存 / 审计日志);key 存 `~/.agentguardrc`。
 
+## CLI 使用(`agent-guard`)
+
+全局安装后执行 `agent-guard <命令>`,三个子命令:
+
+| 命令 | 作用 |
+| --- | --- |
+| `agent-guard setup` | 四步向导:探测/输入 key → 选工具 → 作用域 → 确认写入(见上文) |
+| `agent-guard check` | 手动评估一条命令/工具调用,不经过 hook |
+| `agent-guard hook` | hook 管道模式(stdin JSON → 判定 → stdout),由各工具的 hook 配置调用,一般不手动执行 |
+| `agent-guard --version` / `--help` | 打印版本 / 用法 |
+
+### setup 参数
+
+| 参数 | 说明 |
+| --- | --- |
+| `--key <k>` | 直接提供 TypeSafe key,跳过探测与交互输入 |
+| `--agents a,b` | 指定工具(`zcode` / `claude` / `cursor`,逗号分隔),跳过交互多选 |
+| `--scope user\|project` | 用户级(全部项目生效)或项目级(当前目录),跳过交互选择 |
+| `--yes` | 免最后确认,配合前三个参数即全程无交互 |
+| `--dry-run` | 只打印写入计划,不写任何文件(含 `~/.agentguardrc`) |
+| `--no-verify` | 跳过 key 的真实 API 验证 |
+
+完全非交互的一键安装(CI/脚本场景):
+
+```bash
+agent-guard setup --key <TYPESAFE_API_KEY> --agents zcode,claude --scope user --yes
+```
+
+### check 参数
+
+```bash
+agent-guard check --cmd "docker compose down"                          # 评估一条 Bash 命令(真实 API)
+agent-guard check --tool Write --input '{"file_path":"/tmp/a.txt","content":"x"}'
+```
+
+输出格式:`level=<allow|confirm|block> rendered=<…> source=<fastpath_*|cache|api> 破坏性风险=<%> 红线违反=<%>`。仓库内开发还可用 `node check.mjs --mock`(离线固定判定;依赖 `test/fixtures/`,不随 npm 包发布)。
+
 ## 本地开发:手动启用 hook(不装全局包)
 
 在工作区配置 `<workspace>/.zcode/config.json`(或用户级 `~/.zcode/cli/config.json`,对所有项目生效)添加(hook 路径填本仓库的 hook.mjs 绝对路径,正斜杠):
