@@ -1,6 +1,6 @@
 # agent-guard
 
-TypeSafe(Jev)驱动的 ZCode 工具调用安全守卫:在 `PreToolUse` 拦截 `Bash`、`Write`、`Edit` 与全部 MCP 工具,用一次快速的结构化判断评估操作的**破坏性风险**与**安全红线**,低风险放行、高风险强制人工确认——即使在"完全访问"模式下也拦得住。
+TypeSafe(Jev)驱动的 AI 编程 Agent 工具调用安全守卫:通过宿主工具(ZCode / Claude Code / Cursor)的 `PreToolUse` hook 拦截 `Bash`、`Write`、`Edit` 与全部 MCP 工具,用一次快速的结构化判断评估操作的**破坏性风险**与**安全红线**,低风险放行、高风险强制人工确认——即使在"完全访问"模式下也拦得住。
 
 - **零 npm 依赖**:Node 内置 fetch 直连 TypeSafe API,无需安装任何包
 - **毫秒级日常开销**:四层快路径(豁免名单→白名单→黑名单→缓存),大部分命令根本不出网
@@ -10,7 +10,7 @@ TypeSafe(Jev)驱动的 ZCode 工具调用安全守卫:在 `PreToolUse` 拦截 `B
 ## 工作原理
 
 ```
-ZCode PreToolUse (Bash|Write|Edit|mcp__.*)
+宿主工具 PreToolUse hook (Bash|Write|Edit|mcp__.*)
   → stdin: { tool_name, tool_input, ... }
   → ① 快路径: MCP 豁免 → 只读白名单 → 破坏黑名单 → 判定缓存   (命中即返回,不出网)
   → ② 灰色地带: 一次请求并行问 Jev 两个问题
@@ -35,7 +35,7 @@ deny 的理由会回流给 agent,文案明确要求它停下向用户说明、�
 ## 配置 API key(二选一)
 
 ```bash
-# 方式一:环境变量(Windows 用户级,重启 ZCode 后生效)
+# 方式一:环境变量(Windows 用户级,重启宿主 AI 编程工具后生效)
 setx TYPESAFE_API_KEY "your_api_key"
 
 # 方式二:配置文件(cmd-guard 同款约定,免环境变量继承问题)
@@ -106,7 +106,7 @@ agent-guard check --tool Write --input '{"file_path":"/tmp/a.txt","content":"x"}
 
 ## 本地开发:手动启用 hook(不装全局包)
 
-在工作区配置 `<workspace>/.zcode/config.json`(或用户级 `~/.zcode/cli/config.json`,对所有项目生效)添加(hook 路径填本仓库的 hook.mjs 绝对路径,正斜杠):
+以 ZCode 为例(本仓库开发环境;Claude Code / Cursor 的入口由 `agent-guard setup` 自动写入对应配置文件),在工作区配置 `<workspace>/.zcode/config.json`(或用户级 `~/.zcode/cli/config.json`,对所有项目生效)添加(hook 路径填本仓库的 hook.mjs 绝对路径,正斜杠):
 
 ```json
 {
@@ -131,7 +131,7 @@ agent-guard check --tool Write --input '{"file_path":"/tmp/a.txt","content":"x"}
 }
 ```
 
-> 注意 `hooks.enabled: true` 必须显式设置(ZCode 配置文件 hook 默认禁用);配置修改后需**完全重启 ZCode** 生效。
+> 注意 `hooks.enabled: true` 必须显式设置(ZCode 配置文件 hook 默认禁用);配置修改后需**完全重启宿主工具**生效。
 
 ## 手动评估(不经过 hook)
 
@@ -183,7 +183,7 @@ npm test          # 74 个测试(config/state/fastpath/decide/emit/typesafe/judg
 agent-guard/
   hook.mjs        # PreToolUse 入口(stdin→判定→stdout,异常兜底 fail-closed)
   check.mjs       # 手动评估 CLI(--cmd / --tool+--input / --mock)
-  probe.mjs       # hook 契约探针(开发期验证 ZCode 行为用)
+  probe.mjs       # hook 契约探针(开发期验证宿主工具行为用)
   lib/            # config / state / fastpath / decide / emit / typesafe / judge / log
   config.json     # 全部策略配置
   test/           # node:test 单测 + 集成测试 + fixtures + §10 十二条样例集
