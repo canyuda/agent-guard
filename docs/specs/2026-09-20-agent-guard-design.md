@@ -144,7 +144,7 @@ ZCode PreToolUse (matcher: Bash|Write|Edit|mcp__.*)
 }
 ```
 
-**`config.json`(项目内)关键字段:** `model: "jev-latest"`(留字段随时锁版本)、`degrade_ask_to_deny: true`、阈值(`block_risk: 2.5`、`block_violation: 0.85`、`confirm_risk: 1.5`、`confirm_violation: 0.5`)、`fastpath.{mcp_allowlist, allowlist, denylist}`、`cache.{ttl_minutes: 60, max_entries: 500}`、`log.enabled: true`。
+**`config.json`(项目内)关键字段:** `model: "jev-latest"`(留字段随时锁版本)、`degrade_ask_to_deny: true`、阈值(`block_risk: 2.5`、`block_violation: 0.85`、`confirm_risk: 1.5`、`confirm_violation: 0.5`)、`fastpath.{mcp_allowlist, allowlist, denylist}`、`cache.{ttl_minutes: 60, max_entries: 500}`、`log.enabled: true`、`proxy.{enabled, host, port}`(2026-09-24 增:HTTP CONNECT 隧道,默认关;Node 内置 fetch 不读 `HTTP(S)_PROXY` 环境变量,网络受限需代理时显式配置;隧道失败按 fail-closed 转人工,绝不静默直连绕过)。
 
 **API key 解析顺序:** 环境变量 `TYPESAFE_API_KEY`(用户已配在 Windows 用户注册表,hook 子进程继承 ZCode 进程环境)→ `~/.agentguardrc`(`TYPESAFE_API_KEY="..."`,cmd-guard 同款约定)→ 都没有按失败兜底(§8)。key 只在内存与请求头使用,不写日志、不回显。
 
