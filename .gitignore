@@ -2,3 +2,9 @@ node_modules/
 .cache/
 logs/
 *.tgz
+.zcode
+.idea/
+/.mimosa/
+/.v2c/
+/.video_agent/
+/.zcodeignore
