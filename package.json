@@ -1,6 +1,6 @@
 {
   "name": "@canyuda/agent-guard",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "TypeSafe (Jev) 驱动的 AI 编程工具安全守卫:PreToolUse 拦截 Bash/Write/Edit/MCP,三级风险判定,完全访问模式下强制人工确认",
   "license": "MIT",
   "type": "module",
