@@ -4,12 +4,13 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
-import { PROJECT_ROOT, loadConfig } from "../lib/config.mjs";
+import { loadConfig } from "../lib/config.mjs";
+import { PKG_ROOT } from "../lib/paths.mjs";
 
-const runHook = (stdinText, env) => spawnSync(process.execPath, [join(PROJECT_ROOT, "hook.mjs")],
+const runHook = (stdinText, env) => spawnSync(process.execPath, [join(PKG_ROOT, "hook.mjs")],
   { input: stdinText, encoding: "utf8", env: { ...process.env, ...env } });
 
-const BASE_CFG = loadConfig(join(PROJECT_ROOT, "config.json")); // 名单用真实初值
+const BASE_CFG = loadConfig(join(PKG_ROOT, "config.json")); // 名单用真实初值
 const testEnv = (mock) => {
   const dir = mkdtempSync(join(tmpdir(), "ag-"));
   const cfgPath = join(dir, "c.json");

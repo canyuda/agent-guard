@@ -5,9 +5,9 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { parseArgs } from "../lib/cli.mjs";
-import { PROJECT_ROOT } from "../lib/config.mjs";
+import { PKG_ROOT } from "../lib/paths.mjs";
 
-const BIN = join(PROJECT_ROOT, "bin", "agent-guard.mjs");
+const BIN = join(PKG_ROOT, "bin", "agent-guard.mjs");
 
 test("parseArgs:version/help/setup flags/check 透传", () => {
   assert.equal(parseArgs(["--version"]).cmd, "version");
@@ -39,7 +39,7 @@ test("check 子命令经 bin 冒烟(mock)", () => {
 test("hook 子命令经 bin(管道 stdin,注入 mock)", () => {
   const dir = mkdtempSync(join(tmpdir(), "ag-"));
   const cfgPath = join(dir, "c.json");
-  writeFileSync(cfgPath, JSON.stringify({ log: { enabled: true, path: join(dir, "a.jsonl") }, cache: { path: join(dir, "cache.json") } }));
+  writeFileSync(cfgPath, JSON.stringify({ degrade_ask_to_deny: true, log: { enabled: true, path: join(dir, "a.jsonl") }, cache: { path: join(dir, "cache.json") } }));
   const r = spawnSync(process.execPath, [BIN, "hook"], {
     input: JSON.stringify({ hook_event_name: "PreToolUse", tool_name: "Bash", tool_input: { command: "docker compose down" } }),
     encoding: "utf8",

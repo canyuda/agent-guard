@@ -1,10 +1,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { join } from "node:path";
-import { PROJECT_ROOT, loadConfig } from "../lib/config.mjs";
+import { loadConfig } from "../lib/config.mjs";
+import { PKG_ROOT } from "../lib/paths.mjs";
 import { pipeline, main } from "../lib/run-hook.mjs";
 
-const baseCfg = () => loadConfig(join(PROJECT_ROOT, "config.json"));
+const baseCfg = () => loadConfig(join(PKG_ROOT, "config.json"));
 const whitelistInput = JSON.stringify({ hook_event_name: "PreToolUse", tool_name: "Bash", tool_input: { command: "git status" } });
 
 test("pipeline:白名单命令 → allow,审计 rendered 与实际输出同源", async () => {

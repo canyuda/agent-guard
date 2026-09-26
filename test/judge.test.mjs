@@ -4,12 +4,13 @@ import { mkdtempSync, mkdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { judge } from "../lib/judge.mjs";
-import { loadConfig, PROJECT_ROOT } from "../lib/config.mjs";
+import { loadConfig } from "../lib/config.mjs";
+import { PKG_ROOT } from "../lib/paths.mjs";
 import { AgentGuardError } from "../lib/typesafe.mjs";
 
 // 名单来自真实 config.json(守住 §6 初始清单),仅缓存路径指向临时目录
 const tmpCfg = (path) => {
-  const c = loadConfig(join(PROJECT_ROOT, "config.json"));
+  const c = loadConfig(join(PKG_ROOT, "config.json"));
   return { ...c, cache: { ...c.cache, path: path ?? join(mkdtempSync(join(tmpdir(), "ag-")), "c.json") } };
 };
 
@@ -38,7 +39,7 @@ test("ask 抛错 → confirm(fail-closed)", async () => {
 });
 
 test("MCP 豁免 server 直接 allow", async () => {
-  const cfg = { ...tmpCfg(), fastpath: { ...loadConfig(join(PROJECT_ROOT, "config.json")).fastpath, mcp_allowlist: ["lark-cli"] } };
+  const cfg = { ...tmpCfg(), fastpath: { ...loadConfig(join(PKG_ROOT, "config.json")).fastpath, mcp_allowlist: ["lark-cli"] } };
   const r = await judge("mcp__lark-cli__sendMessage", { chat: "x" }, cfg, { ask: async () => ({ risk: 9, violation: 9 }) });
   assert.equal(r.level, "allow");
   assert.equal(r.source, "fastpath_mcp");

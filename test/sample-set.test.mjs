@@ -6,14 +6,15 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { judge } from "../lib/judge.mjs";
 import { render } from "../lib/emit.mjs";
-import { loadConfig, PROJECT_ROOT } from "../lib/config.mjs";
+import { loadConfig } from "../lib/config.mjs";
+import { PKG_ROOT } from "../lib/paths.mjs";
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const FIX = JSON.parse(readFileSync(join(ROOT, "fixtures", "judgments.json"), "utf8"));
 const mkAsk = (id) => async () => { if (!(id in FIX)) throw new Error(`fixture 缺失: ${id}`); return FIX[id]; };
 const CACHE = join(ROOT, "..", ".cache", "test-samples.json");
 rmSync(CACHE, { force: true });
-const BASE = loadConfig(join(PROJECT_ROOT, "config.json"));
+const BASE = loadConfig(join(PKG_ROOT, "config.json"));
 const cfg = { ...BASE, cache: { ...BASE.cache, path: CACHE } };
 
 const CASES = [

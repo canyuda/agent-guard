@@ -2,10 +2,11 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { join } from "node:path";
 import { matchFast } from "../lib/fastpath.mjs";
-import { DEFAULTS, loadConfig, PROJECT_ROOT } from "../lib/config.mjs";
+import { DEFAULTS, loadConfig } from "../lib/config.mjs";
+import { PKG_ROOT } from "../lib/paths.mjs";
 
 // 名单断言用真实 config.json(守住 spec §6 初始清单);判定缓存的断言见 cache.test.mjs
-const CFG = loadConfig(join(PROJECT_ROOT, "config.json"));
+const CFG = loadConfig(join(PKG_ROOT, "config.json"));
 
 test("MCP 豁免命中 allow", () => {
   const cfg = { ...DEFAULTS, fastpath: { ...DEFAULTS.fastpath, mcp_allowlist: ["lark-cli"] } };

@@ -4,9 +4,9 @@ import { mkdtempSync, readFileSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
-import { PROJECT_ROOT } from "../lib/config.mjs";
+import { PKG_ROOT } from "../lib/paths.mjs";
 
-const BIN = join(PROJECT_ROOT, "bin", "agent-guard.mjs");
+const BIN = join(PKG_ROOT, "bin", "agent-guard.mjs");
 const setupEnv = () => {
   const home = mkdtempSync(join(tmpdir(), "ag-"));
   return { home, env: { ...process.env, USERPROFILE: home, HOME: home, AGENT_GUARD_CONFIG: join(home, "cfg.json") } };
