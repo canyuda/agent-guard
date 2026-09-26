@@ -1,10 +1,14 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { mkdtempSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { toolIdentity, identityDigest } from "../lib/identity.mjs";
-import { cacheKey } from "../lib/fastpath.mjs";
+import { judgmentCache } from "../lib/cache.mjs";
 import { buildState } from "../lib/state.mjs";
 
 const cfg = { state: { content_prefix_bytes: 2048 } };
+const cacheCfg = () => ({ cache: { ttl_minutes: 60, max_entries: 500, path: join(mkdtempSync(join(tmpdir(), "ag-")), "c.json") } });
 
 test("Bash:command 原样属身份,cwd 不属;不 trim(trim 是缓存归一化的事)", () => {
   assert.deepEqual(toolIdentity("Bash", { command: "ls", cwd: "/x" }), { kind: "bash", command: "ls" });
@@ -31,14 +35,17 @@ test("未知工具:args 兜底且键序无关", () => {
   assert.equal(toolIdentity("Glob", { a: 1, b: 2 }).args, toolIdentity("Glob", { b: 2, a: 1 }).args);
 });
 
-test("state 与缓存键同源:内容变则两者皆变(结构上不可能分叉)", () => {
-  const i1 = { file_path: "a", content: "x" }, i2 = { file_path: "a", content: "y" };
-  assert.notEqual(cacheKey("Write", i1), cacheKey("Write", i2));
-  assert.notEqual(buildState("Write", i1, cfg).content_prefix, buildState("Write", i2, cfg).content_prefix);
+test("state 与缓存同源:内容变则两者皆变(结构上不可能分叉)", () => {
+  const c = judgmentCache(cacheCfg());
+  c.store("Write", { file_path: "a", content: "x" }, { risk: 1, violation: 0 }, 1_000_000);
+  assert.deepEqual(c.lookup("Write", { file_path: "a", content: "x" }, 1_000_000), { risk: 1, violation: 0 });
+  assert.equal(c.lookup("Write", { file_path: "a", content: "y" }, 1_000_000), null);
+  assert.notEqual(buildState("Write", { file_path: "a", content: "x" }, cfg).content_prefix,
+                  buildState("Write", { file_path: "a", content: "y" }, cfg).content_prefix);
 });
 
-test("修复:mcp 带 file_path 时缓存键对全部参数敏感(原 path+空内容碰撞)", () => {
-  assert.notEqual(
-    cacheKey("mcp__fs__write", { file_path: "a", data: "1" }),
-    cacheKey("mcp__fs__write", { file_path: "a", data: "2" }));
+test("修复:mcp 带 file_path 时缓存对全部参数敏感(原 path+空内容碰撞)", () => {
+  const c = judgmentCache(cacheCfg());
+  c.store("mcp__fs__write", { file_path: "a", data: "1" }, { risk: 1, violation: 0 }, 1_000_000);
+  assert.equal(c.lookup("mcp__fs__write", { file_path: "a", data: "2" }, 1_000_000), null);
 });

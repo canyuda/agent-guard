@@ -13,7 +13,8 @@ const FIX = JSON.parse(readFileSync(join(ROOT, "fixtures", "judgments.json"), "u
 const mkAsk = (id) => async () => { if (!(id in FIX)) throw new Error(`fixture 缺失: ${id}`); return FIX[id]; };
 const CACHE = join(ROOT, "..", ".cache", "test-samples.json");
 rmSync(CACHE, { force: true });
-const cfg = { ...loadConfig(join(PROJECT_ROOT, "config.json")), __cachePath: CACHE };
+const BASE = loadConfig(join(PROJECT_ROOT, "config.json"));
+const cfg = { ...BASE, cache: { ...BASE.cache, path: CACHE } };
 
 const CASES = [
   ["Bash", { command: "git status" }, "allow"],

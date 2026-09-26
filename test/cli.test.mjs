@@ -39,7 +39,7 @@ test("check 子命令经 bin 冒烟(mock)", () => {
 test("hook 子命令经 bin(管道 stdin,注入 mock)", () => {
   const dir = mkdtempSync(join(tmpdir(), "ag-"));
   const cfgPath = join(dir, "c.json");
-  writeFileSync(cfgPath, JSON.stringify({ log: { enabled: true, path: join(dir, "a.jsonl") }, __cachePath: join(dir, "cache.json") }));
+  writeFileSync(cfgPath, JSON.stringify({ log: { enabled: true, path: join(dir, "a.jsonl") }, cache: { path: join(dir, "cache.json") } }));
   const r = spawnSync(process.execPath, [BIN, "hook"], {
     input: JSON.stringify({ hook_event_name: "PreToolUse", tool_name: "Bash", tool_input: { command: "docker compose down" } }),
     encoding: "utf8",

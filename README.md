@@ -71,23 +71,23 @@ setup 会自动探测 key(env/Windows 注册表/已有 rc 文件)、检测已安
 
 全局安装后执行 `agent-guard <命令>`,三个子命令:
 
-| 命令 | 作用 |
-| --- | --- |
-| `agent-guard setup` | 四步向导:探测/输入 key → 选工具 → 作用域 → 确认写入(见上文) |
-| `agent-guard check` | 手动评估一条命令/工具调用,不经过 hook |
-| `agent-guard hook` | hook 管道模式(stdin JSON → 判定 → stdout),由各工具的 hook 配置调用,一般不手动执行 |
-| `agent-guard --version` / `--help` | 打印版本 / 用法 |
+| 命令                                 | 作用                                                          |
+|------------------------------------|-------------------------------------------------------------|
+| `agent-guard setup`                | 四步向导:探测/输入 key → 选工具 → 作用域 → 确认写入(见上文)                      |
+| `agent-guard check`                | 手动评估一条命令/工具调用,不经过 hook                                      |
+| `agent-guard hook`                 | hook 管道模式(stdin JSON → 判定 → stdout),由各工具的 hook 配置调用,一般不手动执行 |
+| `agent-guard --version` / `--help` | 打印版本 / 用法                                                   |
 
 ### setup 参数
 
-| 参数 | 说明 |
-| --- | --- |
-| `--key <k>` | 直接提供 TypeSafe key,跳过探测与交互输入 |
-| `--agents a,b` | 指定工具(`zcode` / `claude` / `cursor`,逗号分隔),跳过交互多选 |
-| `--scope user\|project` | 用户级(全部项目生效)或项目级(当前目录),跳过交互选择 |
-| `--yes` | 免最后确认,配合前三个参数即全程无交互 |
-| `--dry-run` | 只打印写入计划,不写任何文件(含 `~/.agentguardrc`) |
-| `--no-verify` | 跳过 key 的真实 API 验证 |
+| 参数                      | 说明                                              |
+|-------------------------|-------------------------------------------------|
+| `--key <k>`             | 直接提供 TypeSafe key,跳过探测与交互输入                     |
+| `--agents a,b`          | 指定工具(`zcode` / `claude` / `cursor`,逗号分隔),跳过交互多选 |
+| `--scope user\|project` | 用户级(全部项目生效)或项目级(当前目录),跳过交互选择                    |
+| `--yes`                 | 免最后确认,配合前三个参数即全程无交互                             |
+| `--dry-run`             | 只打印写入计划,不写任何文件(含 `~/.agentguardrc`)             |
+| `--no-verify`           | 跳过 key 的真实 API 验证                               |
 
 完全非交互的一键安装(CI/脚本场景):
 
@@ -151,17 +151,17 @@ node check.mjs --tool Write --input '{"file_path":"/etc/sudoers","content":"root
 
 ## 配置(config.json)
 
-| 字段 | 默认 | 说明 |
-| --- | --- | --- |
-| `model` | `jev-latest` | 模型,可锁具体版本 |
-| `degrade_ask_to_deny` | `false`(试点期) | confirm 级是否用 deny 承载;默认 `true`,实测本机完全访问模式 ask 有确认面后已切 `false`,异常场景可随时切回 |
-| `thresholds.*` | `2.5/0.85`(block)、`1.5/0.5`(confirm) | 三级判定阈值,risk 为 0~3 连续值 |
-| `fastpath.mcp_allowlist` | `[]` | MCP server 豁免名单(命中直接放行),按审计数据填 |
-| `fastpath.allowlist` | git 只读、ls/cat/echo 等 15 条 | 只读白名单正则(命中放行,不出网) |
-| `fastpath.denylist` | `rm -rf`、`format`、fork 炸弹、force push | 破坏黑名单正则(命中直接按 block 处理) |
-| `cache.ttl_minutes` / `max_entries` | `60` / `500` | 判定缓存(同一命令 1 小时内不重跑推理) |
-| `log.enabled` / `path` | `true` / `logs/audit.jsonl` | 审计日志 |
-| `proxy.enabled` / `host` / `port` | `false` / 空 / `0` | TypeSafe API 走 HTTP CONNECT 代理;模板示例 `127.0.0.1:7890`,详见上文"网络代理" |
+| 字段                                  | 默认                                   | 说明                                                                      |
+|-------------------------------------|--------------------------------------|-------------------------------------------------------------------------|
+| `model`                             | `jev-latest`                         | 模型,可锁具体版本                                                               |
+| `degrade_ask_to_deny`               | `false`(试点期)                         | confirm 级是否用 deny 承载;默认 `true`,实测本机完全访问模式 ask 有确认面后已切 `false`,异常场景可随时切回 |
+| `thresholds.*`                      | `2.5/0.85`(block)、`1.5/0.5`(confirm) | 三级判定阈值,risk 为 0~3 连续值                                                   |
+| `fastpath.mcp_allowlist`            | `[]`                                 | MCP server 豁免名单(命中直接放行),按审计数据填                                          |
+| `fastpath.allowlist`                | git 只读、ls/cat/echo 等 15 条            | 只读白名单正则(命中放行,不出网)                                                       |
+| `fastpath.denylist`                 | `rm -rf`、`format`、fork 炸弹、force push | 破坏黑名单正则(命中直接按 block 处理)                                                 |
+| `cache.ttl_minutes` / `max_entries` | `60` / `500`                         | 判定缓存(同一命令 1 小时内不重跑推理)                                                   |
+| `log.enabled` / `path`              | `true` / `logs/audit.jsonl`          | 审计日志                                                                    |
+| `proxy.enabled` / `host` / `port`   | `false` / 空 / `0`                    | TypeSafe API 走 HTTP CONNECT 代理;模板示例 `127.0.0.1:7890`,详见上文"网络代理"         |
 
 调阈值不需要动代码或问题文案——缓存存的是原始概率,阈值改动即时生效。
 
