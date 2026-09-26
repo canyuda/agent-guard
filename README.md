@@ -154,12 +154,12 @@ node check.mjs --tool Write --input '{"file_path":"/etc/sudoers","content":"root
 | 字段                                  | 默认                                   | 说明                                                                      |
 |-------------------------------------|--------------------------------------|-------------------------------------------------------------------------|
 | `model`                             | `jev-latest`                         | 模型,可锁具体版本                                                               |
-| `degrade_ask_to_deny`               | `false`(试点期)                         | confirm 级是否用 deny 承载;默认 `true`,实测本机完全访问模式 ask 有确认面后已切 `false`,异常场景可随时切回 |
+| `degrade_ask_to_deny`               | `false`                              | confirm 级是否用 deny 承载;默认 `false`(ADR 0001:完全访问模式下 confirm 用 ask 原生确认框承载,守卫只拦高危);在 ask 会被静默放行的宿主上可切 `true` |
 | `thresholds.*`                      | `2.5/0.85`(block)、`1.5/0.5`(confirm) | 三级判定阈值,risk 为 0~3 连续值                                                   |
 | `fastpath.mcp_allowlist`            | `[]`                                 | MCP server 豁免名单(命中直接放行),按审计数据填                                          |
 | `fastpath.allowlist`                | git 只读、ls/cat/echo 等 15 条            | 只读白名单正则(命中放行,不出网)                                                       |
 | `fastpath.denylist`                 | `rm -rf`、`format`、fork 炸弹、force push | 破坏黑名单正则(命中直接按 block 处理)                                                 |
-| `cache.ttl_minutes` / `max_entries` | `60` / `500`                         | 判定缓存(同一命令 1 小时内不重跑推理)                                                   |
+| `cache.ttl_minutes` / `max_entries` / `path` | `60` / `500` / 数据目录下 `cache/`    | 判定缓存(同一命令 1 小时内不重跑推理);`path` 可自定义缓存位置(绝对路径或相对数据目录)              |
 | `log.enabled` / `path`              | `true` / `logs/audit.jsonl`          | 审计日志                                                                    |
 | `proxy.enabled` / `host` / `port`   | `false` / 空 / `0`                    | TypeSafe API 走 HTTP CONNECT 代理;模板示例 `127.0.0.1:7890`,详见上文"网络代理"         |
 
