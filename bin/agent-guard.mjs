@@ -16,7 +16,7 @@ switch (cmd) {
     await runSetup(flags);
     break;
   case "check":
-    await runCheck(flags._ ?? []);
+    await runCheck(flags);
     break;
   case "hook":
     process.exitCode = (await runHook()) ?? 3;
