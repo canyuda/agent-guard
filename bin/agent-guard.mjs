@@ -19,7 +19,7 @@ switch (cmd) {
     await runCheck(flags._ ?? []);
     break;
   case "hook":
-    await runHook();
+    process.exitCode = (await runHook()) ?? 3;
     break;
   default:
     console.log(USAGE);
