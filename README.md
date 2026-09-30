@@ -169,6 +169,8 @@ node check.mjs --tool Write --input '{"file_path":"/etc/sudoers","content":"root
 
 `logs/audit.jsonl` 逐行记录每次判定:`ts`(本地时间,ISO 带时区偏移)、`tool`、命令/路径摘要(≤200 字符)、`source`(fastpath_*/cache/api/error)、`risk` 与概率分布、`violation`、`level`、实际渲染的决策、`reason`、耗时。调阈值、回溯误判、填 MCP 豁免名单都以此为准。
 
+评估服务调用失败(timeout/网络错等 fail-closed 转人工场景)另落 `logs/error.jsonl`:记录失败时刻的完整请求快照——`url`、请求头(`authorization` 脱敏为 `Bearer <redacted>`,key 永不落盘)、完整请求体,以及 `tool`/`error_type`/`message`。排查 API 超时先看这里。
+
 ```bash
 tail -5 logs/audit.jsonl
 ```

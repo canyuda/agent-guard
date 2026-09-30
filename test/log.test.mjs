@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { mkdtempSync, existsSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { localIsoTs, appendAudit } from "../lib/log.mjs";
+import { localIsoTs, appendAudit, appendError } from "../lib/log.mjs";
 
 test("localIsoTs:ISO 格式带本地时区偏移,且与输入同一时刻", () => {
   const input = new Date("2026-09-26T06:00:00.123Z");
@@ -34,5 +34,19 @@ test("appendAudit:字段归一化——digest 截 200、缺省字段补 null、t
   assert.equal(line.rendered, null);
   assert.match(line.ts, /[+-]\d{2}:\d{2}$/);
   assert.equal(line.duration_ms, undefined);
+  rmSync(dir, { recursive: true, force: true });
+});
+
+test("appendError:写 audit 同目录 error.jsonl;enabled=false 不写", () => {
+  const dir = mkdtempSync(join(tmpdir(), "ag-log-"));
+  appendError({ tool: "Bash", error_type: "timeout", request: null },
+    { log: { enabled: false, path: join(dir, "a.jsonl") } });
+  assert.equal(existsSync(join(dir, "error.jsonl")), false);
+  appendError({ tool: "Bash", error_type: "timeout", request: { url: "u", headers: {}, body: "b" } },
+    { log: { enabled: true, path: join(dir, "sub", "a.jsonl") } });
+  const line = JSON.parse(readFileSync(join(dir, "sub", "error.jsonl"), "utf8").trim());
+  assert.equal(line.error_type, "timeout");
+  assert.equal(line.request.url, "u");
+  assert.match(line.ts, /[+-]\d{2}:\d{2}$/);
   rmSync(dir, { recursive: true, force: true });
 });

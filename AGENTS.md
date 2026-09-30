@@ -37,7 +37,7 @@ docs/specs/ docs/plans/ docs/notes/ docs/release.md
 ```
 
 - 判定语义：block（risk≥2.5 或 violation≥0.85）/ confirm（≥1.5/0.5）/ allow；阈值全在 config.json，缓存存原始概率，改阈值即时生效、无需清缓存。
-- **运行时数据目录是 `~/.agent-guard/`**（config/cache/logs）；仓库内 config.json、logs/ 只是模板与开发期旧位置。排查实际行为先看 `~/.agent-guard/logs/audit.jsonl`。
+- **运行时数据目录是 `~/.agent-guard/`**（config/cache/logs）；仓库内 config.json、logs/ 只是模板与开发期旧位置。排查实际行为先看 `~/.agent-guard/logs/audit.jsonl`；API 调用失败（timeout 等 fail-closed）的请求快照在同目录 `error.jsonl`（authorization 已脱敏，key 永不落盘）。
 
 ## 文案与审计约定
 

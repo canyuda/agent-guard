@@ -28,3 +28,15 @@ test("超时/网络/5xx/401/坏响应分类", async () => {
   await assert.rejects(askTypeSafe({}, cfg, { post: http(401), apiKey: "k" }), (e) => e.type === "auth");
   await assert.rejects(askTypeSafe({}, cfg, { post: async () => ({ answers: {} }), apiKey: "k" }), (e) => e.type === "bad_schema");
 });
+
+test("失败时错误携带请求快照,authorization 脱敏(key 不进日志)", async () => {
+  const post = async () => { const e = new Error("x"); e.name = "AbortError"; throw e; };
+  await assert.rejects(askTypeSafe({ tool: "Bash", command: "x" }, cfg, { post, apiKey: "sk-secret" }), (e) => {
+    assert.equal(e.type, "timeout");
+    assert.equal(e.request.url, "https://api.typesafe.ai/v1/systemone");
+    assert.equal(e.request.headers.authorization, "Bearer <redacted>");
+    assert.ok(!JSON.stringify(e.request).includes("sk-secret"));
+    assert.equal(JSON.parse(e.request.body).state.command, "x");
+    return true;
+  });
+});
